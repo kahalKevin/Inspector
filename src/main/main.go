@@ -47,6 +47,7 @@ func main() {
 	http.HandleFunc("/ws", handleConnections)
 	http.HandleFunc("/start", startAssertion)
 	http.HandleFunc("/submit", submitAssertion)
+	http.HandleFunc("/stop", stopAssertion)
 
 	// Start listening for incoming assertion start and submision
 	go handleAssertionSubmission()
@@ -71,14 +72,17 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	newUser := model.NewUser(newUuid.String(), ws, time.Now())
 	// Register our new client
 	clients[newUser.Id] = newUser
+    log.Printf("A User Come")
+
 	initData := model.Message{
 		TypeMsg:	"init",
 		From   :	newUser.Id}
 
-    log.Printf("A User Come")
-
 	// Send init data to client, with some contact
 	newUser.Connection.WriteJSON(initData)
+
+	// Send current monitoring data to client
+	newUser.Connection.WriteJSON(monitoringData)
 }
 
 func startAssertion(w http.ResponseWriter, r *http.Request) {
@@ -223,6 +227,22 @@ func insertMonitoringDataToArray(asserted model.AssertionResult, succeed bool){
 	broadcast <- asserted
 }
 
+func stopAssertion(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    scriptUuid := r.URL.Query().Get("script")
+    if _, exist := isFinished[scriptUuid]; exist{
+		isFinished[scriptUuid]=true
+		log.Printf("Script %s has stopped by command", scriptUuid)
+		broadcast <- model.AssertionResult{
+                      PyScript:     scriptUuid,
+                      Times:        -1,
+                      Cleared:      false}
+		w.WriteHeader(http.StatusOK)
+	}else{
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
 func savePythonScript(file multipart.File) string{
 	var Buf bytes.Buffer
     io.Copy(&Buf, file)
@@ -261,7 +281,7 @@ func saveCompanionFile(file multipart.File, uuid string, filename string){
 
 func handleAssertionSubmission() {
 	for {
-		// Grab the next message from the broadcast channel
+		// Grab the next Assertion from the broadcast channel
 		assertionData := <-broadcast
 		contain := monitoringData[assertionData.PyScript]
 		contain = append(contain, assertionData)
