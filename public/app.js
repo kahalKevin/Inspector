@@ -25,39 +25,7 @@ new Vue({
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             console.log(msg);
-            if (msg.type == 'message'){
-                if (typeof self.chatContent[msg.from] == 'undefined'){
-                    self.chatContent[msg.from] = new String('');
-                }
-                self.chatContent[msg.from] += '<div class="chip">'
-                        + '<img src="' + self.gravatarURL(msg.email) + '">' // Avatar
-                        + msg.username
-                    + '</div>'
-                    + emojione.toImage(msg.message) + '<br/>'; // Parse emojis
-
-                var element = document.getElementById('chat-messages');
-                element.scrollTop = element.scrollHeight; // Auto scroll to the bottom
-            }
-            if (msg.type == 'init'){
-                self.chatContent = {};
-                self.own_address = new String(msg.from);
-                // self.contact_list = msg.contact;
-            }
-            if (msg.type == 'add'){
-                if (self.contact_list == null ){
-                    self.contact_list= [];
-                }
-                self.contact_list.push(msg.from);
-            }
-            if (msg.type == 'remove'){
-                console.log(msg.from);
-                // Remove disconnected user from contact list
-                var index = self.contact_list.indexOf(msg.from);
-                self.contact_list.splice(index,1);
-
-                // Delete conversation done with disconnected user
-                delete self.chatContent[msg.from];
-            }            
+    
         });
     },
 
@@ -76,7 +44,6 @@ new Vue({
                 ));
                 // Add this to our chat window too
                 this.chatContent[this.to_address] += '<div class="chip">'
-                        + '<img src="' + this.gravatarURL(this.email) + '">' // Avatar
                         + this.username
                     + '</div>'
                     + emojione.toImage( $('<p>').html(this.newMsg).text() ) + '<br/>'; // Parse emojis
@@ -89,27 +56,9 @@ new Vue({
             }
         },
 
-        join: function () {
-            if (!this.email) {
-                Materialize.toast('You must enter an email', 2000);
-                return
-            }
-            if (!this.username) {
-                Materialize.toast('You must choose a username', 2000);
-                return
-            }
-            this.email = $('<p>').html(this.email).text();
-            this.username = $('<p>').html(this.username).text();
-            this.joined = true;
-        },
-
         selectContact : function (selected){
             this.chatContentOne = this.chatContent[selected];
             this.to_address = selected;
-        },
-
-        gravatarURL: function(email) {
-            return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email);
         },
 
         filesChange: function(fileUpload) {

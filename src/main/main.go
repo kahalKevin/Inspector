@@ -67,8 +67,9 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Make sure we close the connection when the function returns
-	defer ws.Close()
+	// Connection will be closed later if Inspector cant send data anymore
+	// defer ws.Close()
+
 	newUuid := uuid.NewV4()
 	newUser := model.NewUser(newUuid.String(), ws, time.Now())
 	// Register our new client
@@ -291,7 +292,6 @@ func handleAssertionSubmission() {
 		for uuid := range clients {
             err := clients[uuid].Connection.WriteJSON(monitoringData)
             if err != nil {
-                log.Printf("error: %v", err)
                 clients[uuid].Connection.Close()
                 delete(clients, uuid)
             }
