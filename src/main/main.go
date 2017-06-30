@@ -48,6 +48,7 @@ func main() {
 	http.HandleFunc("/start", startAssertion)
 	http.HandleFunc("/submit", submitAssertion)
 	http.HandleFunc("/stop", stopAssertion)
+	http.HandleFunc("/getdata",getMonitoringData)
 
 	// Start listening for incoming assertion start and submision
 	go handleAssertionSubmission()
@@ -145,7 +146,7 @@ func startAssertion(w http.ResponseWriter, r *http.Request) {
     }
     isFinished[scriptUuid] = false
 
-    go initMonitoringArray(scriptUuid)
+    go initMonitoringArray(scriptUuid, title)
     go monitorResult(scriptUuid, testDuration, testInterval)
 
     log.Printf(scriptUuid)
@@ -153,7 +154,7 @@ func startAssertion(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func monitorResult(pythonScript string, duration uint32, interval uint32){
+func monitorResult(pythonScript string, duration, interval uint32){
 	start := time.Now()
 	for !isFinished[pythonScript]{
 		elapsed := time.Since(start)
@@ -179,9 +180,10 @@ func monitorResult(pythonScript string, duration uint32, interval uint32){
 	go os.RemoveAll(fileDir+pythonScript+"/")
 }
 
-func initMonitoringArray(pythonScript string){
+func initMonitoringArray(pythonScript, title string){
 	initAssertion := model.AssertionResult {
 		PyScript:  		pythonScript,
+		Title:          title,
 		Times: 			0,
 		Cleared:  	    false}
 	log.Printf("init data : %v", initAssertion)
@@ -263,7 +265,7 @@ func savePythonScript(file multipart.File) string{
     return newUuid
 }
 
-func saveCompanionFile(file multipart.File, uuid string, filename string){
+func saveCompanionFile(file multipart.File, uuid, filename string){
 	var Buf bytes.Buffer
     io.Copy(&Buf, file)
     contents := string(Buf.Bytes())
@@ -295,4 +297,10 @@ func handleAssertionSubmission() {
             }
         }
 	}
+}
+
+func getMonitoringData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(monitoringData)
 }

@@ -31,22 +31,22 @@
         <div class="input-field col s4">
             <input type="number" min="0" step="1" v-model.trim="interval" placeholder="Interval">
         </div>
+    </div>
+    <div class="row">
+        <div class="col s4">
+            <i class="left">Python script</i>
+            <input type="file" id="fileInput1" @change="filesChange($event.target.files);">
+        </div>
+        <div class="col s4">
+            <i class="left">Companion File</i>
+            <input type="file" id="fileInput2" @change="filesChange2($event.target.files);">
+        </div>
         <div class="input-field col s4">
             <button class="waves-effect waves-light btn" @click="startAssertion()">
                 <i class="material-icons right">done</i>
                 Submit
             </button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s5">
-            <i class="left">Python script</i>
-            <input type="file" id="fileInput1" @change="filesChange($event.target.files);">
-        </div>
-        <div class="col s5">
-            <i class="left">Companion File</i>
-            <input type="file" id="fileInput2" @change="filesChange2($event.target.files);">
-        </div>
+        </div>        
     </div>
     <div class="row">
         <div class="col s12">

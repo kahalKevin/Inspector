@@ -3,6 +3,7 @@ package model
 // Define our message object
 type AssertionResult struct {
 	PyScript      string                 `json:"pyscript"`
+	Title         string                 `json:"title"`
 	Times   	  int   		         `json:"times"`
 	Cleared       bool                   `json:"cleared"`
     Asserted      AssertionEntities      `json:"entity"`
