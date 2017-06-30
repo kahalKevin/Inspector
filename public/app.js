@@ -1,7 +1,7 @@
 new Vue({
     el: '#app',
     data: {
-        ws: null, // Our websocket
+        ws: null, // Our amazing websocket
         pythonscript: '', //python script to be uploaded
         companionfile : '', //companion file of py script
         monitoringDataContent: '',
@@ -106,9 +106,11 @@ new Vue({
                headers: {
                    'Content-Type': 'multipart/form-data'
                }
-            }).then(response => {
-               console.log(response);
-            }, response => {});
+            });
+            // compatibility problem with Safari
+            // .then(response => {
+            //    console.log(response);
+            // }, response => {});
 
             this.title_assertion = null;
             this.duration = null;
