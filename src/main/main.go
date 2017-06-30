@@ -76,13 +76,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	clients[newUser.Id] = newUser
     log.Printf("A User Come")
 
-	initData := model.Message{
-		TypeMsg:	"init",
-		From   :	newUser.Id}
-
-	// Send init data to client, with some contact
-	newUser.Connection.WriteJSON(initData)
-
 	// Send current monitoring data to client
 	newUser.Connection.WriteJSON(monitoringData)
 }
@@ -185,6 +178,7 @@ func initMonitoringArray(pythonScript, title string){
 	initAssertion := model.AssertionResult {
 		PyScript:  		pythonScript,
 		Title:          title,
+		Timelog:        time.Now().Format(time.RFC3339),
 		Times: 			0,
 		Cleared:  	    false}
 	log.Printf("init data : %v", initAssertion)
@@ -226,6 +220,7 @@ func reviewAssertionDone(asserted model.AssertionEntities) bool{
 func insertMonitoringDataToArray(asserted model.AssertionResult, succeed bool){
 	asserted.Times = len(monitoringData[asserted.PyScript])
 	asserted.Cleared = succeed
+	asserted.Timelog = time.Now().Format(time.RFC3339)
 	log.Printf("insert updated data : %v", asserted)
 	broadcast <- asserted
 }
@@ -238,6 +233,7 @@ func stopAssertion(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Script %s has stopped by command", scriptUuid)
 		broadcast <- model.AssertionResult{
                       PyScript:     scriptUuid,
+                      Timelog:      time.Now().Format(time.RFC3339),
                       Times:        -1,
                       Cleared:      false}
 		w.WriteHeader(http.StatusOK)

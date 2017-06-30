@@ -5,6 +5,7 @@ type AssertionResult struct {
 	PyScript      string                 `json:"pyscript"`
 	Title         string                 `json:"title"`
 	Times   	  int   		         `json:"times"`
+	Timelog       string                 `json:"timelog"`
 	Cleared       bool                   `json:"cleared"`
     Asserted      AssertionEntities      `json:"entity"`
     EnvEnts  	  EnvMonitoringEntities  `json:"envent"`
