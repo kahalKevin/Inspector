@@ -147,8 +147,11 @@ func submitAssertion(w http.ResponseWriter, r *http.Request) {
 
 	var asserted model.AssertionResult
 	json.Unmarshal(body, &asserted)
-
-	if _, exist := isFinished[asserted.PyScript]; exist{		
+	if asserted.PyScript[:8] == fileDir{
+		splittedPath := strings.Split(asserted.PyScript, "/")
+		asserted.PyScript = splittedPath[len(splittedPath)-1]
+	}
+	if _, exist := isFinished[asserted.PyScript]; exist{
 		if reviewAssertionDone(asserted.Asserted){
 			isFinished[asserted.PyScript]=true
 			log.Printf("Script %s has finished", asserted.PyScript)
@@ -156,6 +159,7 @@ func submitAssertion(w http.ResponseWriter, r *http.Request) {
 		go insertMonitoringDataToArray(asserted, isFinished[asserted.PyScript])
 		w.WriteHeader(http.StatusOK)
 	}else{
+		log.Printf(asserted.PyScript)
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
