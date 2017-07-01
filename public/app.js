@@ -64,7 +64,7 @@ new Vue({
                             for (var j = 0; j < msg[key][i].envent.length; j++) {
                                 content += '<li>'
                                 content += 'Env Name: ' + emojione.toImage( $('<p>').html(msg[key][i].envent[j].env).text() );
-                                content += ' | Free memory: <b>' + emojione.toImage( $('<p>').html(msg[key][i].envent[j].free).text() ) + '</b>';
+                                content += ' | Free memory: <b>' + emojione.toImage( $('<p>').html(msg[key][i].envent[j].free).text() ) + ' kB</b>';
                                 content += ' | Added info: <b>' + emojione.toImage( $('<p>').html(msg[key][i].envent[j].info).text() ) + '</b>';
                                 content += '</li>'
                             }
