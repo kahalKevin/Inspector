@@ -1,0 +1,17 @@
+filedirectory  = "../file/"
+
+publicdirectory = "../public/"
+
+inspectorport = ":8000"
+
+smtphost = "127.0.0.1"
+smtpport = 25
+
+emailfrom = "makesenderhere@mail.com"
+emailrecipient = ["listreceiver1@mail.com","listreceiver2@mail.com"]
+
+[subject]
+assertion_report = "[Inspector][Report] Final Assertion Report"
+
+[body]
+assertion_report = "Assertion Result<br /><br />%v"

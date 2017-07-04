@@ -14,6 +14,7 @@ import (
 	"github.com/satori/go.uuid"
 
 	"model"
+	"mailer"
 )
 
 var isFinished = make(map[string]bool) // script in process
@@ -21,6 +22,7 @@ var monitoringData = make(map[string]model.AssertionResults)
 var clients = make(map[string]model.User) // connected clients
 var broadcast = make(chan model.AssertionResult)  // broadcast channel
 var fileDir, webPort string
+var Mailer   mailer.Mailer
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -28,11 +30,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func Start(dir, port string) {
+func Start(dir, port, host, sender, public string, smtpPort int, recpt []string, subject, body map[string]string) {
 	fileDir = dir
 	webPort = port
 	// Create a simple file server
-	fs := http.FileServer(http.Dir("../public"))
+	fs := http.FileServer(http.Dir(public))
 	http.Handle("/", fs)
 
 	// Configure websocket route
@@ -44,6 +46,13 @@ func Start(dir, port string) {
 
 	// Start listening for incoming assertion start and submision
 	go handleAssertionSubmission()
+
+	Mailer = mailer.New(
+		host,
+		smtpPort,
+		sender,
+		recpt,
+	).SetMessages(subject, body)
 
 	log.Println("http server started on", webPort)
 	err := http.ListenAndServe(webPort, nil)
@@ -147,7 +156,7 @@ func submitAssertion(w http.ResponseWriter, r *http.Request) {
 
 	var asserted model.AssertionResult
 	json.Unmarshal(body, &asserted)
-	if asserted.PyScript[:8] == fileDir{
+	if strings.Contains(asserted.PyScript, fileDir){
 		splittedPath := strings.Split(asserted.PyScript, "/")
 		asserted.PyScript = splittedPath[len(splittedPath)-1]
 	}

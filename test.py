@@ -5,13 +5,13 @@ from InspectorAgent import agent
 # pip install requests
 # pip install paramiko
 
-agent.startAssertion('127.0.0.1:8000')
+agent.startAssertion('127.0.0.1:8001')
 # agent.fakeName('77b0cf94-dea6-42db-ba96-33a6362acdd7')
 
-agent.assertMetric("check first", True, "this info is additional")
-agent.assertMetric("check final", True, "this info is additional")
+agent.assertMetric("Check int", 10<9, "this check if 10<9")
+agent.assertMetric("Check this", True, "this info is additional")
 
-agent.envFreeMemory("10.99.14.37", "ruma", "ruma1234", "this info is about env")
-agent.envFreeMemory("10.99.3.100", "ruma", "ruma1234", "this info is about env")
+agent.envFreeMemory("103.25.42.117", "root", "root", "free memory of 103.25.42.117")
+agent.envFreeMemory("103.25.42.118", "root", "root", "free memory of 103.25.42.118")
 
 agent.finishAssertion()

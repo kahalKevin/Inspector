@@ -3,6 +3,7 @@ package inspector
 import (
 	"log"
 	"time"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -23,8 +24,9 @@ func monitorResult(pythonScript string, duration, interval uint32){
 		if uint32(intElapsed) < duration{
 			timer := time.NewTimer(time.Minute * time.Duration(interval))
 			<-timer.C
-			if isFinished[pythonScript] {
+			if isFinished[pythonScript] {				
 				go os.RemoveAll(fileDir+pythonScript+"/")
+				go sendEmail(monitoringData[pythonScript])
 				return
 			}
             cmd := exec.Command("python", fileDir+pythonScript+"/"+pythonScript+".py")
@@ -36,8 +38,9 @@ func monitorResult(pythonScript string, duration, interval uint32){
 		}else{
 			isFinished[pythonScript]=true
 		}
-	}
+	}	
 	go os.RemoveAll(fileDir+pythonScript+"/")
+	go sendEmail(monitoringData[pythonScript])
 }
 
 func initMonitoringArray(pythonScript, title string){
@@ -120,5 +123,21 @@ func handleAssertionSubmission() {
                 delete(clients, uuid)
             }
         }
+	}
+}
+
+func sendEmail(data model.AssertionResults){
+	email_key := "assertion_report"
+	sub, body := Mailer.Message(email_key)
+
+	// "Assertion Result<br /><br />%v"
+	body = fmt.Sprintf(
+		body,
+		data,
+	)
+
+    errMail := Mailer.Send(sub, body)
+	if errMail!=nil{
+		log.Printf("%v", errMail)
 	}
 }
